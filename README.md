@@ -16,8 +16,8 @@ Ensure you have the following installed:
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/your-username/dynamic-pricing-system.git
-   cd dynamic-pricing-system
+   git clone https://github.com/TirthSoni12/DynamicPricingSystem.git
+   cd dynamic_pricing_system
 
 2. **Create and Activate a Virtual Environment**
     - python3 -m venv venv
