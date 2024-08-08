@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.test import TestCase
-from .models import Product, SeasonalProduct, BulkProduct
+from .models import Product, SeasonalProduct, BulkProduct, PercentageDiscount, FixedAmountDiscount
 
 
 class ProductTests(TestCase):
@@ -60,3 +60,25 @@ class BulkProductTests(TestCase):
 
     def test_get_price_no_bulk_discount(self):
         self.assertEqual(self.bulk_product.get_price(quantity=5), 150.00)
+
+
+class DiscountTests(TestCase):
+
+    def setUp(self):
+
+        self.percentage_discount = PercentageDiscount.objects.create(
+            name="10% Off",
+            description="10% discount",
+            percentage=10
+        )
+        self.fixed_amount_discount = FixedAmountDiscount.objects.create(
+            name="Fixed $20 Off",
+            description="Fixed discount of $20",
+            amount=20.00
+        )
+
+    def test_percentage_discount(self):
+        self.assertEqual(self.percentage_discount.apply_discount(200.00), 180.00)
+
+    def test_fixed_amount_discount(self):
+        self.assertEqual(self.fixed_amount_discount.apply_discount(200.00), 180.00)
