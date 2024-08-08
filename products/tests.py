@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.test import TestCase
-from .models import Product, SeasonalProduct, BulkProduct, PercentageDiscount, FixedAmountDiscount
+from .models import Product, SeasonalProduct, BulkProduct, PercentageDiscount, FixedAmountDiscount, Order, OrderItem
 
 
 class ProductTests(TestCase):
@@ -65,7 +65,6 @@ class BulkProductTests(TestCase):
 class DiscountTests(TestCase):
 
     def setUp(self):
-
         self.percentage_discount = PercentageDiscount.objects.create(
             name="10% Off",
             description="10% discount",
@@ -82,3 +81,39 @@ class DiscountTests(TestCase):
 
     def test_fixed_amount_discount(self):
         self.assertEqual(self.fixed_amount_discount.apply_discount(200.00), 180.00)
+
+
+class OrderTests(TestCase):
+
+    def setUp(self):
+        # Create products
+        self.product1 = Product.objects.create(name="Product 1", description="Description 1", price=100.00)
+        self.product2 = BulkProduct.objects.create(name="Bulk Product", description="Description 2", price=150.00,
+                                                   bulk_quantity=5, bulk_discount_percentage=10)
+
+        self.percentage_discount = PercentageDiscount.objects.create(name="10% Off", description="10% discount",
+                                                                     percentage=10)
+
+        self.order = Order.objects.create()
+        OrderItem.objects.create(order=self.order, product=self.product1, quantity=2, discount=self.percentage_discount)
+        OrderItem.objects.create(order=self.order, product=self.product2, quantity=6)
+
+    def test_calculate_total_with_discounts(self):
+        self.assertEqual(self.order.calculate_total(), 450.00)
+
+
+class OrderItemTests(TestCase):
+
+    def setUp(self):
+        self.product = Product.objects.create(name="Product", description="Description", price=100.00)
+        self.discount = PercentageDiscount.objects.create(name="10% Off", description="10% discount", percentage=10)
+
+        self.order = Order.objects.create()
+        self.order_item = OrderItem.objects.create(order=self.order, product=self.product, quantity=3,
+                                                   discount=self.discount)
+
+    def test_order_item_discount(self):
+        self.assertEqual(self.order_item.discount.apply_discount(self.product.get_price()), 90.00)
+
+    def test_order_item_quantity(self):
+        self.assertEqual(self.order_item.quantity, 3)
