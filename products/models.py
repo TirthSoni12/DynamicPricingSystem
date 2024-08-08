@@ -15,9 +15,6 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-    class Meta:
-        abstract = True
-
 
 class SeasonalProduct(Product):
     start_date = models.DateField()
@@ -48,9 +45,6 @@ class Discount(models.Model):
 
     def apply_discount(self, price):
         raise NotImplementedError("Subclasses must implement this method")
-
-    class Meta:
-        abstract = True
 
 
 class PercentageDiscount(Discount):
