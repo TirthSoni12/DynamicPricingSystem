@@ -65,3 +65,23 @@ class FixedAmountDiscount(Discount):
 
     def apply_discount(self, price):
         return max(0, price - self.amount)
+
+
+class Order(models.Model):
+    products = models.ManyToManyField(Product, through='OrderItem')
+
+    def calculate_total(self):
+        total = 0
+        for item in self.orderitem_set.all():
+            price = item.product.get_price(quantity=item.quantity)
+            if item.discount:
+                price = item.discount.apply_discount(price)
+            total += price * item.quantity
+        return total
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    discount = models.ForeignKey(Discount, null=True, blank=True, on_delete=models.SET_NULL)
