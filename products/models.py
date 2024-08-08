@@ -20,7 +20,6 @@ class SeasonalProduct(Product):
     start_date = models.DateField()
     end_date = models.DateField()
     discount_percentage = models.DecimalField(max_digits=10, decimal_places=2)
-    is_active = models.BooleanField(default=True)
 
     def get_price(self):
         today = datetime.now().date()
